@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zombie 2 Người V36 - Auto Skip Giữ Zombie & Visual Upgrade</title>
+  <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="app">
+    <div id="authContainer" class="auth-container">
+      <div id="userInfo" style="display: none;">
+        <span id="userNameDisplay" style="color: #fde047; font-weight: bold; margin-right: 10px;">User</span>
+        <button id="btnLogout" class="mini-btn red">Đăng xuất</button>
+      </div>
+      <div id="authButtons">
+        <button id="btnLoginModal" class="mini-btn">Đăng nhập</button>
+        <button id="btnRegisterModal" class="mini-btn blue">Đăng ký</button>
+      </div>
+    </div>
+
+    <div class="panel game-panel">
+      <canvas id="game" width="1366" height="768"></canvas>
+
+      <div class="hud" style="flex-wrap: wrap;">
+        <div id="p1HudCard" class="hud-card" style="border-color: #3b82f6;">
+          <div id="p1Name" style="color: #60a5fa;">Player 1</div>
+          <div id="p1Info" class="small">Pistol | Coin: 0</div>
+          <div id="p1Bomb" class="small">Bom: Frag x0</div>
+          <div id="p1AmmoText" class="small ammo-text">Đạn: 12/12</div>
+          <div class="bar"><div id="p1ammo" class="fill ammo-fill"></div></div>
+          <div id="p1hp" class="hearts-container"></div>
+          <div class="bar"><div id="p1energy" class="fill gold-fill"></div></div>
+        </div>
+
+        <div id="p2HudCard" class="hud-card" style="border-color: #ef4444;">
+          <div id="p2Name" style="color: #f87171;">Player 2</div>
+          <div id="p2Info" class="small">Pistol | Coin: 0</div>
+          <div id="p2Bomb" class="small">Bom: Frag x0</div>
+          <div id="p2AmmoText" class="small ammo-text">Đạn: 12/12</div>
+          <div class="bar"><div id="p2ammo" class="fill ammo-fill"></div></div>
+          <div id="p2hp" class="hearts-container"></div>
+          <div class="bar"><div id="p2energy" class="fill gold-fill"></div></div>
+        </div>
+
+        <div class="hud-card hud-center" style="order: 5; margin-top: 10px; flex-basis: 100%;">
+          <div id="levelText">Level 1/40</div>
+          <div id="waveText" class="small">Zombie: 0 | Combo: x1</div>
+          <div id="bossBar" class="bar hidden"><div id="bossFill" class="fill boss-fill"></div></div>
+        </div>
+
+        <div id="p3HudCard" class="hud-card" style="border-color: #eab308; display: none;">
+          <div id="p3Name" style="color: #facc15;">Player 3</div>
+          <div id="p3Info" class="small">Pistol | Coin: 0</div>
+          <div id="p3Bomb" class="small">Bom: Frag x0</div>
+          <div id="p3AmmoText" class="small ammo-text">Đạn: 12/12</div>
+          <div class="bar"><div id="p3ammo" class="fill ammo-fill"></div></div>
+          <div id="p3hp" class="hearts-container"></div>
+          <div class="bar"><div id="p3energy" class="fill gold-fill"></div></div>
+        </div>
+        
+        <div id="p4HudCard" class="hud-card" style="border-color: #22c55e; display: none;">
+          <div id="p4Name" style="color: #4ade80;">Player 4</div>
+          <div id="p4Info" class="small">Pistol | Coin: 0</div>
+          <div id="p4Bomb" class="small">Bom: Frag x0</div>
+          <div id="p4AmmoText" class="small ammo-text">Đạn: 12/12</div>
+          <div class="bar"><div id="p4ammo" class="fill ammo-fill"></div></div>
+          <div id="p4hp" class="hearts-container"></div>
+          <div class="bar"><div id="p4energy" class="fill gold-fill"></div></div>
+        </div>
+      </div>
+
+
+      <div id="networkScreen" class="screen" style="z-index: 10000; background: rgba(15, 23, 42, 0.95);">
+        <div class="intro-box">
+          <h2 class="intro-title">CHỌN CHẾ ĐỘ CHƠI</h2>
+          <div class="mode-row" style="margin-top:20px; flex-direction:column; gap:10px;">
+            <button id="btnPlayOffline" class="btn">CHƠI OFFLINE (Chung máy)</button>
+            <button id="btnPlayOnline" class="btn blue">CHƠI ONLINE (Nhiều máy)</button>
+          </div>
+          <div id="onlinePanel" style="display:none; margin-top:20px; background:#1e293b; padding:15px; border-radius:8px;">
+            <button id="btnCreateRoom" class="btn" style="background:#22c55e;">TẠO PHÒNG MỚI</button>
+            <div style="margin:15px 0;">HOẶC</div>
+            <input type="text" id="roomCodeInput" placeholder="Mã 4 chữ số" style="padding:10px; font-size:18px; text-transform:uppercase; text-align:center; width:200px; color:black; font-family:'VT323', monospace;">
+            <button id="btnJoinRoom" class="btn" style="margin-top:10px;">VÀO PHÒNG</button>
+            <div id="roomStatus" style="margin-top:15px; font-size:24px; color:#facc15;"></div>
+            <button id="btnStartOnline" class="btn red" style="display:none; margin-top:15px;">BẮT ĐẦU GAME</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="introScreen" class="screen hidden">
+        <div class="intro-box">
+          <div class="intro-kicker">Military Base Under Attack</div>
+          <div class="intro-scene">
+            <div class="intro-radar-ring ring1"></div>
+            <div class="intro-radar-ring ring2"></div>
+            <div class="intro-radar-ring ring3"></div>
+            <div class="intro-radar-core"></div>
+            <div class="intro-sweep"></div>
+            <div class="intro-base"></div>
+            <div class="intro-lights"></div>
+          </div>
+          <h2 class="intro-title">CĂN CỨ THẤT THỦ</h2>
+          <p class="intro-sub">
+            Báo động đỏ! Zombie đã tràn vào căn cứ quân sự. Bạn có thể chơi <b>1 người</b> hoặc <b>2 người</b>,
+            chọn chiến binh, chọn map có luật riêng và sống sót qua 40 level.
+          </p>
+          <div class="intro-tags">
+            <span class="intro-tag">1P / 2P</span>
+            <span class="intro-tag">Nhiều súng & bom</span>
+            <span class="intro-tag">Pet - Fever - Airdrop</span>
+            <span class="intro-tag">Map căn cứ quân sự</span>
+            <span class="intro-tag">Đồ họa nâng cấp</span>
+            <span class="intro-tag">4 map có luật riêng</span>
+            <span class="intro-tag">Zombie kho báu hiếm</span>
+            <span class="intro-tag">Power-up hiếm</span>
+          </div>
+          <button id="continueFromIntroBtn" class="btn" style="max-width:320px;margin:22px auto 0;display:block">Vào menu</button>
+        </div>
+      </div>
+
+      <div id="menuScreen" class="screen">
+        <div class="menu-box">
+          <h3>Zombie 2 Người V36</h3>
+          <p>
+            Chọn <b>1 người</b> hoặc <b>2 người</b>, chọn map và nhân vật. Bản V36 sửa Auto Skip để <b>không làm mất zombie cũ</b>, nâng đồ họa bản đồ/nhân vật và cân bằng lại giá mở khóa nhân vật.
+          </p>
+
+          <div class="mode-row">
+            <button id="mode1Btn" class="mode-chip">Chơi 1 người</button>
+            <button id="mode2Btn" class="mode-chip active">Chơi 2 người</button>
+            <button id="autoSkipBtn" class="mode-chip">Auto Skip: TẮT</button>
+          </div>
+          <div id="modeLabel" class="mode-note">Đang chọn: Chế độ 2 người.</div>
+          <div class="mode-note">Auto Skip: khi bật, mỗi level từ 1-39 sẽ tự sang level tiếp theo sau 5 giây. Boss level 40 không tự skip.</div>
+
+          <div class="wallet-box">
+            <div class="wallet-main">
+              <span>Tiền mở khóa nhân vật</span>
+              <span id="dollarBalance" class="wallet-money">$0</span>
+            </div>
+            <div id="unlockStatus" class="small">Chiến Binh miễn phí. Các nhân vật khác cần mua bằng $.</div>
+            <div class="wallet-actions">
+              <button id="buyP1CharBtn" class="mini-btn">P1 mua nhân vật</button>
+              <button id="buyP2CharBtn" class="mini-btn red">P2 mua nhân vật</button>
+            </div>
+            <div class="small">Kiếm $ vĩnh viễn khi kết thúc trận: thưởng = màn cao nhất x 2.5$ (màn 20 = 50$, màn 30 = 75$). Không cộng $ sau từng màn hoặc hạ boss. Coin trong trận vẫn dùng để mua súng/bom.</div>
+          </div>
+
+          <div class="select-card" style="margin-top:12px;text-align:left">
+            <label>Chọn map</label>
+            <select id="mapSelect"></select>
+            <div id="mapDesc" class="desc"></div>
+          </div>
+
+          <div class="select-grid">
+            <div class="select-card">
+              <label>Player 1 - Xanh</label>
+              <select id="p1Select"></select>
+              <div id="p1Desc" class="desc"></div>
+              <div class="desc help-mini">Di chuyển: mũi tên | Bắn <span class="kbd">L</span> | Kỹ năng <span class="kbd">K</span> | Ném bom <span class="kbd">O</span></div>
+            </div>
+
+            <div id="p2SelectCard" class="select-card">
+              <label>Player 2 - Đỏ</label>
+              <select id="p2Select"></select>
+              <div id="p2Desc" class="desc"></div>
+              <div class="desc help-mini">Di chuyển: WASD | Bắn <span class="kbd">F</span> | Kỹ năng <span class="kbd">G</span> | Ném bom <span class="kbd">R</span></div>
+            </div>
+          </div>
+
+          <button id="startBtn" class="btn">Bắt đầu chơi</button>
+          <button id="openShopFromMenuBtn" class="btn blue">Xem shop súng & bom</button>
+        </div>
+      </div>
+
+      <div id="shopScreen" class="screen shop hidden">
+        <div class="shop-box">
+          <div class="shop-head">
+            <div>
+              <h3>Cửa hàng súng, bom & pet</h3>
+              <div id="shopMoney" class="small">P1 coin: 0 | P2 coin: 0</div>
+            </div>
+            <button id="closeShopBtn" class="mini-btn gray">Đóng / M</button>
+          </div>
+          <div id="shopGrid" class="shop-grid"></div>
+        </div>
+      </div>
+
+      <div id="toast" class="toast">Thông báo</div>
+
+      <!-- Mini Game Modal -->
+      <div id="miniGameScreen" class="screen hidden" style="z-index: 1000; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.8);">
+        <div style="background: rgba(15, 23, 42, 0.95); border: 2px solid #facc15; border-radius: 12px; padding: 24px; width: 400px; text-align: center; color: white;">
+          
+          <div id="miniGameSlot">
+            <h2 style="margin-top:0; color: #fde047;">QUAY SỐ KIẾM ĐÔ ($)</h2>
+            <p style="font-size: 16px; margin-bottom: 20px;">Quay số để nhận thưởng ngẫu nhiên từ 5$ đến 50$.</p>
+            <div style="display:flex; justify-content:center; gap: 15px; margin-bottom: 20px;">
+              <div id="slot1" style="width:60px; height:60px; background:#1e293b; border:2px solid #475569; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:bold;">?</div>
+              <div id="slot2" style="width:60px; height:60px; background:#1e293b; border:2px solid #475569; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:bold;">?</div>
+              <div id="slot3" style="width:60px; height:60px; background:#1e293b; border:2px solid #475569; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:32px; font-weight:bold;">?</div>
+            </div>
+            <button id="spinBtn" class="btn" style="background:#22c55e; margin-bottom:10px;">QUAY SỐ</button>
+          </div>
+
+          <div id="miniGameTiming" style="display:none;">
+            <h2 style="margin-top:0; color: #fde047;">THỬ THÁCH PHẢN XẠ</h2>
+            <p style="font-size: 16px; margin-bottom: 20px;">Dừng vạch ngay vùng màu xanh để nhận 30$. Trượt nhận 5$.</p>
+            <div style="width:100%; height:30px; background:#1e293b; border:2px solid #475569; border-radius:15px; position:relative; margin-bottom:20px; overflow:hidden;">
+              <div id="timingZone" style="position:absolute; top:0; height:100%; width:60px; background:#16a34a; left:140px;"></div>
+              <div id="timingCursor" style="position:absolute; top:0; height:100%; width:6px; background:#ef4444; left:0;"></div>
+            </div>
+            <button id="timingBtn" class="btn" style="background:#22c55e; margin-bottom:10px;">DỪNG LẠI</button>
+          </div>
+
+          <button id="closeMiniGameBtn" class="btn red">ĐÓNG</button>
+        </div>
+      </div>
+      <!-- Auth Modal -->
+      <div id="authModal" class="screen hidden" style="z-index: 10001; display:none; align-items:center; justify-content:center; background: rgba(0,0,0,0.8);">
+        <div class="auth-box">
+          <h2 id="authTitle" style="margin-top:0; color: #fde047;">ĐĂNG NHẬP</h2>
+          <input type="text" id="authUsername" placeholder="Tên tài khoản" class="auth-input">
+          <input type="password" id="authPassword" placeholder="Mật khẩu" class="auth-input">
+          <div id="authError" style="color: #ef4444; margin-bottom: 10px; font-size: 14px; display: none;"></div>
+          <button id="btnSubmitAuth" class="btn" style="background:#22c55e; margin-bottom:10px;">XÁC NHẬN</button>
+          <button id="btnCloseAuth" class="btn red">ĐÓNG</button>
+        </div>
+      </div>
+    </div>
+
+    <aside class="panel side">
+      <h1>Zombie V36</h1>
+      <p>Bản này tập trung vào 3 việc: Auto Skip không xóa zombie cũ, đồ họa bớt trống và giá nhân vật hợp lý hơn.</p>
+
+      <button id="openShopBtn" class="btn blue">Mở cửa hàng / phím M</button>
+      <button id="restartBtn" class="btn red">Chơi lại</button>
+      <button id="autoSkipSideBtn" class="btn">Auto Skip: TẮT / phím N</button>
+      <button id="returnMenuBtn" class="btn">Về Menu / phím Esc</button>
+      <button id="miniGameBtn" class="btn" style="background:#f59e0b; color:#fff; border-color:#d97706;">KIẾM $ / MINI GAME</button>
+
+      <div id="recordBox" class="shop-card" style="margin-top:12px"></div>
+      <div id="missionPanel" class="shop-card" style="margin-top:12px"></div>
+
+      <h2>Điều khiển</h2>
+      <ul>
+        <li><b>P1:</b> mũi tên, bắn <b>L</b>, kỹ năng <b>K</b>, bom <b>O</b>.</li>
+        <li><b>P2:</b> WASD, bắn <b>F</b>, kỹ năng <b>G</b>, bom <b>R</b>.</li>
+        <li><b>M:</b> shop | <b>P:</b> tạm dừng | <b>N:</b> Auto Skip | <b>Esc:</b> về Menu.</li>
+      </ul>
+
+      <h2>Luật chính</h2>
+      <ul>
+        <li>40 level. Cứ 5 level có zombie/áp lực mới.</li>
+        <li>Auto Skip sau 5 giây sẽ sang màn mới nhưng <b>giữ zombie cũ</b>.</li>
+        <li>Level 36-39 có Ma xuyên tường. Level 40 là Boss cuối.</li>
+        <li>Qua màn nhận coin, còn tiền <b>$</b> dùng để mở khóa nhân vật.</li>
+      </ul>
+
+      <h2>Map</h2>
+      <ul>
+        <li><b>Căn cứ:</b> cân bằng, có ô tiếp tế.</li>
+        <li><b>Sa mạc:</b> có thanh khát, đứng yên để hồi.</li>
+        <li><b>Thành phố:</b> có khói và lửa.</li>
+        <li><b>Lab:</b> có ô năng lượng và bẫy điện.</li>
+      </ul>
+
+      <h2>Nhân vật</h2>
+      <ul>
+        <li>Nhân vật rẻ: Tân Binh, Trinh Sát, Y Tá, Thợ Đạn...</li>
+        <li>Nhân vật trung/cao cấp: Bác Sĩ, Ninja, Ma Cà Rồng, Robot...</li>
+        <li>Giá đã cân bằng lại: Y Tá rẻ hơn Bác Sĩ, nhân vật mạnh tăng giá dần.</li>
+      </ul>
+    </aside>
+  </div>
+
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/game.js') }}"></script>
+</body>
+</html>
