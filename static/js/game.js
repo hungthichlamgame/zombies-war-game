@@ -2357,13 +2357,15 @@ function emitPlayerInputs() {
   });
 }
 
+let netTick = 0;
 function updateGame() {
   if (state !== "playing" || shopOpen || paused) { updateParticlesTexts(); return; }
   
+  netTick++;
   if (isOnline && !isHost) {
     updateParticlesTexts();
     updateHud();
-    emitPlayerInputs();
+    if (netTick % 3 === 0) emitPlayerInputs();
     return;
   }
 
@@ -2385,7 +2387,7 @@ function updateGame() {
   updateHud();
   
   if (isOnline && isHost) {
-    emitGameState();
+    if (netTick % 3 === 0) emitGameState();
     // host still processes local inputs directly in updatePlayers
   }
 }
