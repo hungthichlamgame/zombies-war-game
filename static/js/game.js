@@ -1320,8 +1320,10 @@ function spawnZombie(type) {
   z.x = p.x; z.y = p.y; z.lastX = z.x; z.lastY = z.y;
   zombies.push(z);
 }
-function spawnLevel() {
-  bullets = []; enemyBullets = []; bombs = []; mines = []; blackHoles = []; pickups = []; coins = []; chests = [];
+function spawnLevel(keepItems = false) {
+  if (!keepItems) {
+    bullets = []; enemyBullets = []; bombs = []; mines = []; blackHoles = []; pickups = []; coins = []; chests = [];
+  }
   levelAgeFrames = 0;
   levelAutoSkipped = false;
   const types = levelTypes(level);
@@ -2210,7 +2212,7 @@ function advanceToNextLevel(reason = "clear") {
   if (reason === "auto") {
     addText("Zombie màn " + oldLevel + " vẫn tiếp tục đuổi!", W / 2, 158, 18);
   }
-  spawnLevel();
+  spawnLevel(reason === "auto");
   updateShop();
 }
 
@@ -2324,9 +2326,6 @@ function emitGameState() {
     pickups: pickups,
     coins: coins,
     chests: chests,
-    particles: particles,
-    shockwaves: shockwaves,
-    texts: texts,
     turrets: turrets,
     drones: drones,
     pets: pets,
@@ -4104,9 +4103,6 @@ if (typeof io !== 'undefined') {
     pickups = gameState.pickups || [];
     coins = gameState.coins || [];
     chests = gameState.chests || [];
-    particles = gameState.particles || [];
-    shockwaves = gameState.shockwaves || [];
-    texts = gameState.texts || [];
     turrets = gameState.turrets || [];
     drones = gameState.drones || [];
     pets = gameState.pets || [];
