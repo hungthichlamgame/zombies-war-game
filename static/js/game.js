@@ -2316,19 +2316,37 @@ function updateEnvironment() {
 function emitGameState() {
   if (!socket || !isOnline || !isHost) return;
   const stateData = {
-    players: players,
-    zombies: zombies,
-    bullets: bullets,
-    enemyBullets: enemyBullets,
-    bombs: bombs,
-    mines: mines,
-    blackHoles: blackHoles,
-    pickups: pickups,
-    coins: coins,
-    chests: chests,
-    turrets: turrets,
-    drones: drones,
-    pets: pets,
+    players: players.map(p => ({
+      id: p.id, x: Math.round(p.x), y: Math.round(p.y), alive: p.alive, label: p.label, name: p.name,
+      weapon: p.weapon, charKey: p.charKey, coins: p.coins, bombType: p.bombType,
+      bombs: p.bombs, hp: Math.round(p.hp), maxHp: p.maxHp, energy: Math.round(p.energy),
+      energyMax: p.energyMax, ammo: p.ammo, reloadTimer: p.reloadTimer, lastDir: p.lastDir,
+      accent: p.accent, isMecha: p.isMecha, shield: p.shield, invulnTimer: p.invulnTimer,
+      damageBoostTimer: p.damageBoostTimer, speedBoostTimer: p.speedBoostTimer
+    })),
+    zombies: zombies.map(z => ({
+      x: Math.round(z.x), y: Math.round(z.y), r: Math.round(z.r), hp: Math.round(z.hp),
+      maxHp: z.maxHp, type: z.type, color: z.color, isBoss: z.isBoss, isMiniBoss: z.isMiniBoss,
+      treasure: z.treasure, freezeTimer: z.freezeTimer, burnTimer: z.burnTimer,
+      reviveTimer: z.reviveTimer, shield: z.shield, name: z.name
+    })),
+    bullets: bullets.map(b => ({
+      x: Math.round(b.x), y: Math.round(b.y), r: Math.round(b.r), color: b.color, weapon: b.weapon
+    })),
+    enemyBullets: enemyBullets.map(b => ({
+      x: Math.round(b.x), y: Math.round(b.y), r: Math.round(b.r), type: b.type
+    })),
+    bombs: bombs.map(b => ({
+      x: Math.round(b.x), y: Math.round(b.y), type: b.type
+    })),
+    mines: mines.map(m => ({ x: Math.round(m.x), y: Math.round(m.y) })),
+    blackHoles: blackHoles.map(b => ({ x: Math.round(b.x), y: Math.round(b.y), r: Math.round(b.r) })),
+    pickups: pickups.map(p => ({ x: Math.round(p.x), y: Math.round(p.y), type: p.type })),
+    coins: coins.map(c => ({ x: Math.round(c.x), y: Math.round(c.y) })),
+    chests: chests.map(c => ({ x: Math.round(c.x), y: Math.round(c.y), rare: c.rare, pulse: c.pulse })),
+    turrets: turrets.map(t => ({ x: Math.round(t.x), y: Math.round(t.y), type: t.type, owner: t.owner })),
+    drones: drones.map(d => ({ x: Math.round(d.x), y: Math.round(d.y), type: d.type, owner: d.owner })),
+    pets: pets.map(p => ({ x: Math.round(p.x), y: Math.round(p.y), type: p.type, owner: p.owner })),
     level: level,
     combo: combo,
     timeOfDay: timeOfDay,
@@ -2364,7 +2382,7 @@ function updateGame() {
   if (isOnline && !isHost) {
     updateParticlesTexts();
     updateHud();
-    if (netTick % 3 === 0) emitPlayerInputs();
+    if (netTick % 4 === 0) emitPlayerInputs();
     return;
   }
 
@@ -2386,7 +2404,7 @@ function updateGame() {
   updateHud();
   
   if (isOnline && isHost) {
-    if (netTick % 3 === 0) emitGameState();
+    if (netTick % 4 === 0) emitGameState();
     // host still processes local inputs directly in updatePlayers
   }
 }
